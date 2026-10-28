@@ -1,0 +1,14 @@
+{
+  "model": {
+    "CONV_WIDTH": 4,
+    "FILTERS": 30,
+    "LSTM_STATE_SIZE": 300,
+    "LSTM_DROPOUT": 0.68,
+    "REC_DROPOUT": 0.25,
+    "WORD_EMB_DIR": "glove.6B/glove.6B.100d.txt",
+    "EPOCHS": 80,
+    "BATCH_SIZE": 128,
+    "OPTIMIZER": "rmsprop",
+    "EARLY_STOPPING_PATIENCE": 5
+  }
+}

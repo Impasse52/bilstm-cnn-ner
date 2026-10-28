@@ -1,0 +1,4 @@
+tensorflow>=2.12
+numpy>=1.23
+seqeval>=1.2.2
+tensorflow[and-cuda]==2.20
