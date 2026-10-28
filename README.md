@@ -1,4 +1,4 @@
-# CNN-BiLSTM Named Entity Recognition
+# BiLSTM-CNN Named Entity Recognition
 
 A reworked script-based version of a former NER project realized in the context of an university exam. This script trains a CNN-BiLSTM token classifier on CoNLL-2003 or CoNLL-2012, evaluates entity-level precision/recall/F1, and saves the model and experiment artifacts. The original version can be found in `notebooks`.
 
