@@ -1,42 +1,15 @@
 # CNN-BiLSTM Named Entity Recognition
 
-A script-based version of the academic NER project. The code trains a CNN-BiLSTM token classifier on CoNLL-2003 or CoNLL-2012, evaluates entity-level precision/recall/F1, and saves the model and experiment artifacts.
+A reworked script-based version of a former NER project realized in the context of an university exam. This script trains a CNN-BiLSTM token classifier on CoNLL-2003 or CoNLL-2012, evaluates entity-level precision/recall/F1, and saves the model and experiment artifacts. The original version can be found in `notebooks`.
 
-## Project structure
-
-```text
-.
-├── configs/
-│   └── default.json          # Hyperparameters
-├── data/
-│   └── conll003-englishversion/
-│       ├── train.txt
-│       ├── valid.txt
-│       └── test.txt
-├── src/
-│   ├── datasets.py           # Dataset readers
-│   ├── evaluation.py         # Original evaluation helpers
-│   ├── model.py              # CNN-BiLSTM model definitions
-│   ├── pipeline.py           # Vocabulary, features and tensor preparation
-│   └── utils.py
-├── train.py                  # CLI training + evaluation entry point
-├── requirements.txt
-└── artifacts/                # Created at runtime (models and metrics)
-```
-
-The original notebooks, paper, slides, results sheet, and included CoNLL-2003 data are retained for reference. The scripts are the recommended entry point for new runs.
+This project is based on [Named Entity Recognition with Bidirectional LSTM-CNNs (Chiu and Nichols, 2016)](https://arxiv.org/abs/1511.08308).
 
 ## Setup
 
-Python 3.10–3.11 is a sensible starting point for TensorFlow compatibility.
 
 ```bash
 python -m venv .venv
-# macOS/Linux
 source .venv/bin/activate
-# Windows PowerShell: .venv\\Scripts\\Activate.ps1
-
-python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -48,61 +21,41 @@ data/glove.6B/glove.6B.100d.txt
 
 The path is configurable with `--embeddings`. The GloVe file is not included because it is large and has separate distribution terms.
 
-## Train and evaluate CoNLL-2003
-
 The included data folder is used by default:
 
 ```bash
 python train.py --dataset conll2003
 ```
 
-Training combines `train.txt` and `valid.txt`, then evaluates against `test.txt`.
 
-## Train and evaluate CoNLL-2012
+## Results
 
-Obtain the CoNLL-2012/OntoNotes data separately (it is not included in this archive), unpack it under `data/conll-2012/`, and ensure the expected `v12/` directory contains the `.gold_conll` files. Then run:
+The CNN-BiLSTM model was evaluated on the CoNLL-2003 and CoNLL-2012 datasets. Experiments explored different optimizers, GloVe embedding dimensions, LSTM units, dropout rates, and convolution widths.
 
-```bash
-python train.py --dataset conll2012
-```
+### Best recorded results
 
-You can specify a different dataset directory:
+| Dataset | Optimizer | Embeddings | Precision | Recall | F1-score |
+|---|---|---|---:|---:|---:|
+| CoNLL-2003 | Adam | GloVe 6B 100d | **89.4%** | **90.2%** | **89.8%** |
+| CoNLL-2012 | RMSprop | GloVe 6B 200d | **70.4%** | **69.5%** | **69.9%** |
 
-```bash
-python train.py --dataset conll2012 --data-dir /path/to/conll-2012
-```
+### Experimental results
 
-## Common options
+| Dataset | Optimizer | Embeddings | Epochs | Batch size | POS features | LSTM units | Dropout | Conv width | Precision | Recall | F1-score |
+|---|---|---|---:|---:|:---:|---:|---:|---:|---:|---:|---:|
+| CoNLL-2003 | Adam | GloVe 100d | 80 | 128 | Yes | 300 | 0.68 | 3 | 89.4% | 90.2% | **89.8%** |
+| CoNLL-2003 | RMSprop | GloVe 100d | 80 | 9 | No | 275 | 0.68 | 3 | 89.1% | 89.7% | 89.4% |
+| CoNLL-2003 | RMSprop | GloVe 100d | 80 | 128 | No | 275 | 0.68 | 3 | 89.1% | 90.2% | 89.7% |
+| CoNLL-2003 | RMSprop | GloVe 50d | 80 | 128 | No | 275 | 0.68 | 3 | 87.8% | 89.5% | 88.6% |
+| CoNLL-2003 | RMSprop | GloVe 200d | 80 | 128 | No | 275 | 0.68 | 3 | 88.5% | 89.9% | 89.2% |
+| CoNLL-2003 | RMSprop | GloVe 300d | 80 | 128 | No | 275 | 0.68 | 3 | 87.9% | 89.8% | 88.9% |
+| CoNLL-2003 | RMSprop | GloVe 200d | 80 | 128 | Yes | 275 | 0.68 | 3 | 88.5% | 89.6% | 89.0% |
+| CoNLL-2003 | Nadam | GloVe 100d | 80 | 128 | Yes | 275 | 0.68 | 3 | 88.3% | 89.9% | 89.1% |
+| CoNLL-2003 | SGD | GloVe 50d | 80 | 9 | No | 275 | 0.68 | 3 | 81.5% | 79.9% | 80.7% |
+| CoNLL-2003 | Adam | GloVe 100d | 80 | 128 | Yes | 275 | 0.68 | 3 | 89.1% | 89.9% | 89.5% |
+| CoNLL-2003 | Adam | GloVe 100d | 80 | 128 | Yes | 325 | 0.68 | 3 | 89.1% | 90.2% | 89.6% |
+| CoNLL-2003 | Adam | GloVe 100d | 80 | 128 | Yes | 300 | 0.68 | 4 | 88.4% | 89.7% | 89.0% |
+| CoNLL-2003 | Adam | GloVe 100d | 80 | 128 | Yes | 300 | 0.50 | 4 | 89.4% | 90.1% | 89.7% |
+| CoNLL-2012 | RMSprop | GloVe 200d | 18 | 9 | No | 300 | 0.68 | 3 | 70.4% | 69.5% | 69.9% |
+| CoNLL-2012 | RMSprop | GloVe 100d | 18 | 9 | No | 300 | 0.68 | 3 | 70.0% | 56.0% | 62.0% |
 
-```bash
-python train.py --dataset conll2003 --epochs 20 --batch-size 64
-python train.py --dataset conll2003 --config configs/default.json
-python train.py --dataset conll2003 --embeddings data/glove.6B/glove.6B.100d.txt --output-dir artifacts/experiment_01 --seed 123
-```
-
-Hyperparameters live in `configs/default.json`. CLI values override the configured epoch and batch size.
-
-## Outputs
-
-Each run creates the following files in `artifacts/` (or the selected output directory):
-
-- `<dataset>_cnn_bilstm.keras` — trained Keras model
-- `<dataset>_metrics.json` — precision, recall, F1 and per-entity report
-- `<dataset>_labels.json` — label-to-index mapping
-- `<dataset>_vocabulary.json` — word, character, casing and phrase-part mappings
-
-## Model overview
-
-- Pretrained GloVe word embeddings (frozen)
-- Token casing features
-- Character-level CNN features
-- POS/phrase-part features for CoNLL-2003
-- Bidirectional LSTM sequence encoder
-- Token-level softmax classifier
-
-## Notes and limitations
-
-- This is a research/academic baseline, not a production-ready service.
-- The implementation pads/truncates sequences to 52 tokens and character sequences to 52 characters, reflecting the original pipeline; longer sentences may be truncated.
-- CoNLL-2012 preprocessing expects the original OntoNotes-style `.gold_conll` layout.
-- Results can vary with TensorFlow/Keras version, hardware, and random seed. Re-run evaluation before quoting a score in a CV.
